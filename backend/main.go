@@ -1,0 +1,27 @@
+package main
+
+import (
+	"log"
+	"net/http"
+
+	"github.com/dnwandana/expense-tracker/database"
+	"github.com/dnwandana/expense-tracker/routes"
+	_ "github.com/joho/godotenv/autoload"
+)
+
+func main() {
+	log.Println("connecting to database")
+	database.NewConnection()
+
+	log.Println("setting up routes")
+	mux := http.NewServeMux()
+	routes.SetupAuthenticationRoutes(mux)
+
+	server := http.Server{
+		Addr:    ":5000",
+		Handler: mux,
+	}
+
+	log.Println("server up and running on port 5000")
+	log.Fatal(server.ListenAndServe())
+}

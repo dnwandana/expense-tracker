@@ -1,0 +1,7 @@
+CREATE TABLE users (
+  id VARCHAR(5) PRIMARY KEY,
+  username VARCHAR(20) NOT NULL UNIQUE,
+  password VARCHAR(60) NOT NULL,
+  created_at DATETIME DEFAULT NOW(),
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW()
+);
