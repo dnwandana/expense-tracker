@@ -6,9 +6,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/dnwandana/expense-tracker/utils"
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// NewConnection creates a new pool of connections to the database
 func NewConnection() *sql.DB {
 	username := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASS")
@@ -19,9 +21,7 @@ func NewConnection() *sql.DB {
 	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, dbname)
 
 	db, err := sql.Open("mysql", dataSource)
-	if err != nil {
-		panic(err)
-	}
+	utils.PanicIfError(err)
 
 	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(20)
