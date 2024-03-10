@@ -24,7 +24,7 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 		utils.PanicIfError(err)
 
 		// find the user by username
-		user, err := userRepo.FindByUsername(req.Username)
+		user := userRepo.FindByUsername(req.Username)
 		utils.PanicIfError(err)
 
 		if user.Username == "" {
@@ -88,8 +88,7 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 		utils.PanicIfError(err)
 
 		// check if the username is already taken
-		data, err := userRepo.FindByUsername(req.Username)
-		utils.PanicIfError(err)
+		data := userRepo.FindByUsername(req.Username)
 
 		// error response
 		if data.Username != "" {
@@ -115,8 +114,7 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 		}
 
 		// store the user to the database
-		err = userRepo.Create(user)
-		utils.PanicIfError(err)
+		userRepo.Create(user)
 
 		// success response
 		response := web.Response{
