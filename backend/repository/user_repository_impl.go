@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/dnwandana/expense-tracker/model/entity"
 	"github.com/dnwandana/expense-tracker/utils"
@@ -34,9 +33,7 @@ func (repo *UserRepositoryImpl) FindByUsername(username string) (*entity.User, e
 	}
 	defer rows.Close()
 
-	if !rows.Next() {
-		return nil, errors.New("user not found")
-	} else {
+	if rows.Next() {
 		err = rows.Scan(&user.ID, &user.Username, &user.Password)
 		if err != nil {
 			return nil, err
