@@ -16,6 +16,7 @@ func main() {
 	log.Println("setting up routes")
 	mux := http.NewServeMux()
 	routes.SetupAuthenticationRoutes(mux, db)
+	routes.SetupCategoryRoutes(mux, db)
 
 	server := http.Server{
 		Addr:    ":5000",

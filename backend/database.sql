@@ -5,3 +5,12 @@ CREATE TABLE users (
   created_at DATETIME DEFAULT NOW(),
   updated_at DATETIME DEFAULT NOW() ON UPDATE NOW()
 );
+
+CREATE TABLE categories (
+  id VARCHAR(5) PRIMARY KEY,
+  user_id VARCHAR(5) NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  created_at DATETIME DEFAULT NOW(),
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
