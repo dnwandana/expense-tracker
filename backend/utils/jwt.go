@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"strconv"
 	"time"
@@ -59,4 +60,22 @@ func SignRefreshToken(user *entity.User) string {
 
 	// return the token
 	return refreshToken
+}
+
+// VerifyToken verifies the token and returns the token object
+func VerifyToken(tokenString string) (*jwt.Token, error) {
+	// parse and validate the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		// check the signing method is HMAC, as expected
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+
+		// return the jwt secret key
+		secret := os.Getenv("JWT_SECRET")
+		return []byte(secret), nil
+	})
+
+	return token, err
 }
