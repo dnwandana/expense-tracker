@@ -33,7 +33,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		categoryRepo.Create(&category)
 
 		// response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "category created",
 		}
@@ -50,7 +50,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		categories := categoryRepo.FindByUserID(userID)
 
 		// response
-		response := web.Response{
+		response := web.ResponseData{
 			Status: true,
 			Data:   categories,
 		}
@@ -66,7 +66,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		category := categoryRepo.FindByID(categoryID)
 
 		// response
-		response := web.Response{
+		response := web.ResponseData{
 			Status: true,
 			Data:   category,
 		}
@@ -93,7 +93,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		categoryRepo.Update(userID, &category)
 
 		// response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "category updated",
 		}
@@ -112,7 +112,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		categoryRepo.Delete(userID, categoryID)
 
 		// response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "category deleted",
 		}

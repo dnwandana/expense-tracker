@@ -35,7 +35,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		expenseRepo.Create(&expense)
 
 		// response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "expense created",
 		}
@@ -52,7 +52,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		expenses := expenseRepo.FindByUserID(userID)
 
 		// response
-		response := web.Response{
+		response := web.ResponseData{
 			Status: true,
 			Data:   expenses,
 		}
@@ -68,7 +68,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		expense := expenseRepo.FindByID(expenseID)
 
 		// response
-		response := web.Response{
+		response := web.ResponseData{
 			Status: true,
 			Data:   expense,
 		}
@@ -99,7 +99,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		expenseRepo.Update(userID, &expense)
 
 		// response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "expense updated",
 		}
@@ -118,7 +118,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		expenseRepo.Delete(userID, expenseID)
 
 		// response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "expense deleted",
 		}

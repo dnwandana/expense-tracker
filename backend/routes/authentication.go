@@ -2,7 +2,6 @@ package routes
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http"
 
 	"github.com/dnwandana/expense-tracker/model/entity"
@@ -20,38 +19,32 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 	mux.HandleFunc("POST /api/auth/signin", func(w http.ResponseWriter, r *http.Request) {
 		// parse the request
 		req := new(request.AuthenticationRequest)
-		err := json.NewDecoder(r.Body).Decode(req)
-		utils.PanicIfError(err)
+		utils.ReadJsonrequest(r, req)
 
 		// find the user by username
 		user := userRepo.FindByUsername(req.Username)
-		utils.PanicIfError(err)
 
 		if user.Username == "" {
-			response := web.Response{
+			response := web.ResponseMessage{
 				Status:  false,
 				Message: "invalid username or password",
 			}
 
-			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			err := json.NewEncoder(w).Encode(response)
-			utils.PanicIfError(err)
+			utils.WriteJsonResponse(w, response)
 			return
 		}
 
 		// compare the password
 		isPasswordMatch := utils.ComparePassword(user.Password, req.Password)
 		if !isPasswordMatch {
-			response := web.Response{
+			response := web.ResponseMessage{
 				Status:  false,
 				Message: "invalid username or password",
 			}
 
-			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			err := json.NewEncoder(w).Encode(response)
-			utils.PanicIfError(err)
+			utils.WriteJsonResponse(w, response)
 			return
 		}
 
@@ -69,38 +62,32 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 		}
 
 		// success response
-		response := web.Response{
+		response := web.ResponseData{
 			Status: true,
 			Data:   token,
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(response)
-		utils.PanicIfError(err)
+		utils.WriteJsonResponse(w, response)
 	})
 
 	// signup endpoint
 	mux.HandleFunc("POST /api/auth/signup", func(w http.ResponseWriter, r *http.Request) {
 		// parse the request
 		req := new(request.AuthenticationRequest)
-		err := json.NewDecoder(r.Body).Decode(req)
-		utils.PanicIfError(err)
+		utils.ReadJsonrequest(r, req)
 
 		// check if the username is already taken
 		data := userRepo.FindByUsername(req.Username)
 
 		// error response
 		if data.Username != "" {
-			response := web.Response{
+			response := web.ResponseMessage{
 				Status:  false,
 				Message: "username already taken",
 			}
 
-			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			err := json.NewEncoder(w).Encode(response)
-			utils.PanicIfError(err)
+			utils.WriteJsonResponse(w, response)
 			return
 		}
 
@@ -117,14 +104,12 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 		userRepo.Create(user)
 
 		// success response
-		response := web.Response{
+		response := web.ResponseMessage{
 			Status:  true,
 			Message: "your account has been created",
 		}
 
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		err = json.NewEncoder(w).Encode(response)
-		utils.PanicIfError(err)
+		utils.WriteJsonResponse(w, response)
 	})
 }
