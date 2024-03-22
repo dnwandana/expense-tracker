@@ -14,7 +14,7 @@ func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.Hand
 		// get the Authorization header
 		accessToken := r.Header.Get("x-access-token")
 		if accessToken == "" {
-			response := web.Response{
+			response := web.ResponseMessage{
 				Status:  false,
 				Message: "missing x-access-token header",
 			}
@@ -27,7 +27,7 @@ func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.Hand
 		// validate and decode the token
 		token, err := utils.VerifyToken(accessToken)
 		if err != nil {
-			response := web.Response{
+			response := web.ResponseMessage{
 				Status:  false,
 				Message: "invalid token",
 			}
@@ -40,7 +40,7 @@ func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.Hand
 		// get the claims and check if the token is valid
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			response := web.Response{
+			response := web.ResponseMessage{
 				Status:  false,
 				Message: "invalid token",
 			}
