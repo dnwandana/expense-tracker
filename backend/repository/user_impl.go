@@ -16,17 +16,16 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (repo *UserRepositoryImpl) Create(user *entity.User) {
-	id := utils.GenerateNanoID(5)
-	_, err := repo.DB.Exec("INSERT INTO users (id, username, password) VALUES (?, ?, ?)", id, user.Username, user.Password)
+	_, err := repo.DB.Exec("INSERT INTO users (username, password) VALUES (?, ?)", user.Username, user.Password)
 	utils.PanicIfError(err)
 }
 
 func (repo *UserRepositoryImpl) FindByUsername(username string) *entity.User {
-	user := new(entity.User)
 	rows, err := repo.DB.Query("SELECT id, username, password FROM users WHERE username = ?", username)
 	utils.PanicIfError(err)
 	defer rows.Close()
 
+	user := new(entity.User)
 	if rows.Next() {
 		err = rows.Scan(&user.ID, &user.Username, &user.Password)
 		utils.PanicIfError(err)
