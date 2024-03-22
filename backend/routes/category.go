@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"github.com/dnwandana/expense-tracker/middleware"
 	"github.com/dnwandana/expense-tracker/model/entity"
@@ -19,7 +20,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	// create category
 	mux.HandleFunc("POST /api/categories", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
 		// parse the request
 		req := new(request.CategoryRequest)
@@ -37,14 +38,13 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 			Status:  true,
 			Message: "category created",
 		}
-		w.WriteHeader(http.StatusCreated)
-		utils.WriteJsonResponse(w, response)
+		utils.WriteJsonResponse(w, response, http.StatusCreated)
 	})))
 
 	// get category endpoint
 	mux.HandleFunc("GET /api/categories", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
 		// get categories
 		categories := categoryRepo.FindByUserID(userID)
@@ -60,7 +60,9 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	// detail category endpoint
 	mux.HandleFunc("GET /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// request params
-		categoryID := r.PathValue("category_id")
+		categoryIDStr := r.PathValue("category_id")
+		categoryID, err := strconv.Atoi(categoryIDStr)
+		utils.PanicIfError(err)
 
 		// get category
 		category := categoryRepo.FindByID(categoryID)
@@ -76,10 +78,12 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	// update category endpoint
 	mux.HandleFunc("PUT /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
 		// request params
-		categoryID := r.PathValue("category_id")
+		categoryIDStr := r.PathValue("category_id")
+		categoryID, err := strconv.Atoi(categoryIDStr)
+		utils.PanicIfError(err)
 
 		// parse the request
 		req := new(request.CategoryRequest)
@@ -103,10 +107,12 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	// delete category endpoint
 	mux.HandleFunc("DELETE /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
 		// request params
-		categoryID := r.PathValue("category_id")
+		categoryIDStr := r.PathValue("category_id")
+		categoryID, err := strconv.Atoi(categoryIDStr)
+		utils.PanicIfError(err)
 
 		// delete category
 		categoryRepo.Delete(userID, categoryID)
