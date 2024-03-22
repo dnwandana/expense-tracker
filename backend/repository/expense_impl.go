@@ -20,9 +20,9 @@ func (repo *ExpenseRepositoryImpl) Create(expense *entity.Expense) {
 	utils.PanicIfError(err)
 }
 
-func (repo *ExpenseRepositoryImpl) FindByID(id string) *entity.Expense {
+func (repo *ExpenseRepositoryImpl) FindByID(expenseID int) *entity.Expense {
 	query := "SELECT id, category_id, amount, description, created_at, updated_at FROM expenses WHERE id = ?"
-	row, err := repo.DB.Query(query, id)
+	row, err := repo.DB.Query(query, expenseID)
 	utils.PanicIfError(err)
 	defer row.Close()
 
@@ -35,7 +35,7 @@ func (repo *ExpenseRepositoryImpl) FindByID(id string) *entity.Expense {
 	return expense
 }
 
-func (repo *ExpenseRepositoryImpl) FindByUserID(userID string) []*entity.Expense {
+func (repo *ExpenseRepositoryImpl) FindByUserID(userID int) []*entity.Expense {
 	query := "SELECT id, category_id, amount, description, created_at, updated_at FROM expenses WHERE user_id = ?"
 	rows, err := repo.DB.Query(query, userID)
 	utils.PanicIfError(err)
@@ -52,12 +52,12 @@ func (repo *ExpenseRepositoryImpl) FindByUserID(userID string) []*entity.Expense
 	return expenses
 }
 
-func (repo *ExpenseRepositoryImpl) Update(userID string, expense *entity.Expense) {
+func (repo *ExpenseRepositoryImpl) Update(userID int, expense *entity.Expense) {
 	_, err := repo.DB.Exec("UPDATE expenses SET category_id = ?, amount = ?, description = ? WHERE user_id = ? AND id = ?", expense.CategoryID, expense.Amount, expense.Description, userID, expense.ID)
 	utils.PanicIfError(err)
 }
 
-func (repo *ExpenseRepositoryImpl) Delete(userID, id string) {
-	_, err := repo.DB.Exec("DELETE FROM expenses WHERE user_id = ? AND id = ?", userID, id)
+func (repo *ExpenseRepositoryImpl) Delete(userID, expenseID int) {
+	_, err := repo.DB.Exec("DELETE FROM expenses WHERE user_id = ? AND id = ?", userID, expenseID)
 	utils.PanicIfError(err)
 }

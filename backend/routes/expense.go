@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"github.com/dnwandana/expense-tracker/middleware"
 	"github.com/dnwandana/expense-tracker/model/entity"
@@ -19,7 +20,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 	// create expense
 	mux.HandleFunc("POST /api/expenses", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
 		// parse the request
 		req := new(request.ExpenseRequest)
@@ -39,14 +40,13 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 			Status:  true,
 			Message: "expense created",
 		}
-		w.WriteHeader(http.StatusCreated)
-		utils.WriteJsonResponse(w, response)
+		utils.WriteJsonResponse(w, response, http.StatusCreated)
 	})))
 
 	// get expense endpoint
 	mux.HandleFunc("GET /api/expenses", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
 		// get expenses
 		expenses := expenseRepo.FindByUserID(userID)
@@ -61,8 +61,10 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 
 	// detail expense endpoint
 	mux.HandleFunc("GET /api/expenses/:expense_id", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// get expense id
-		expenseID := r.PathValue("id")
+		// request params
+		expenseIDStr := r.PathValue("id")
+		expenseID, err := strconv.Atoi(expenseIDStr)
+		utils.PanicIfError(err)
 
 		// get expense
 		expense := expenseRepo.FindByID(expenseID)
@@ -79,10 +81,12 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 	// update expense endpoint
 	mux.HandleFunc("PUT /api/expenses/:expense_id", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
-		// parameter: expense id
-		expenseID := r.PathValue("expense_id")
+		// request params
+		expenseIDStr := r.PathValue("id")
+		expenseID, err := strconv.Atoi(expenseIDStr)
+		utils.PanicIfError(err)
 
 		// parse the request
 		req := new(request.ExpenseRequest)
@@ -109,10 +113,12 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 	// delete expense endpoint
 	mux.HandleFunc("DELETE /api/expenses/:expense_id", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(string)
+		userID := r.Context().Value("user_id").(int)
 
-		// parameter: expense id
-		expenseID := r.PathValue("expense_id")
+		// request params
+		expenseIDStr := r.PathValue("id")
+		expenseID, err := strconv.Atoi(expenseIDStr)
+		utils.PanicIfError(err)
 
 		// delete expense
 		expenseRepo.Delete(userID, expenseID)
