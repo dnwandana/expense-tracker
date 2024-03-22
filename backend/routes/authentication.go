@@ -30,8 +30,7 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 				Message: "invalid username or password",
 			}
 
-			w.WriteHeader(http.StatusBadRequest)
-			utils.WriteJsonResponse(w, response)
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
 			return
 		}
 
@@ -43,8 +42,7 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 				Message: "invalid username or password",
 			}
 
-			w.WriteHeader(http.StatusBadRequest)
-			utils.WriteJsonResponse(w, response)
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
 			return
 		}
 
@@ -86,8 +84,7 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 				Message: "username already taken",
 			}
 
-			w.WriteHeader(http.StatusBadRequest)
-			utils.WriteJsonResponse(w, response)
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
 			return
 		}
 
@@ -106,10 +103,9 @@ func SetupAuthenticationRoutes(mux *http.ServeMux, db *sql.DB) {
 		// success response
 		response := web.ResponseMessage{
 			Status:  true,
-			Message: "your account has been created",
+			Message: "account created",
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		utils.WriteJsonResponse(w, response)
+		utils.WriteJsonResponse(w, response, http.StatusCreated)
 	})
 }

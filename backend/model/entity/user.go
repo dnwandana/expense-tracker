@@ -2,8 +2,9 @@ package entity
 
 import "time"
 
+// User represents users table in database
 type User struct {
-	ID        string
+	ID        int
 	Username  string
 	Password  string
 	CreatedAt time.Time
