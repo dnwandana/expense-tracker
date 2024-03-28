@@ -16,7 +16,7 @@ func NewCategoryRepository(db *sql.DB) CategoryRepository {
 }
 
 func (repo *CategoryRepositoryImpl) Create(category *entity.Category) {
-	_, err := repo.DB.Exec("INSERT INTO categories (user_id, name) VALUES (?, ?, ?)", category.UserID, category.Name)
+	_, err := repo.DB.Exec("INSERT INTO categories (user_id, name) VALUES (?, ?)", category.UserID, category.Name)
 	utils.PanicIfError(err)
 }
 
