@@ -9,8 +9,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+type UserIDKey string
+
+const UserID UserIDKey = "user_id"
+
+func RequireAccessToken(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// get the Authorization header
 		accessToken := r.Header.Get("x-access-token")
 		if accessToken == "" {
@@ -19,8 +23,7 @@ func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.Hand
 				Message: "missing x-access-token header",
 			}
 
-			w.WriteHeader(http.StatusBadRequest)
-			utils.WriteJsonResponse(w, response)
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
 			return
 		}
 
@@ -32,8 +35,7 @@ func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.Hand
 				Message: "invalid token",
 			}
 
-			w.WriteHeader(http.StatusUnauthorized)
-			utils.WriteJsonResponse(w, response)
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
 			return
 		}
 
@@ -45,17 +47,15 @@ func RequireAccessToken(next func(http.ResponseWriter, *http.Request)) http.Hand
 				Message: "invalid token",
 			}
 
-			w.WriteHeader(http.StatusUnauthorized)
-			utils.WriteJsonResponse(w, response)
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
 			return
 		}
 
 		// if everything is ok
 		// extract user_id from the token
 		// call the next handler, and pass the user_id to the context
-		type contextKey string
-		var UserIDKey contextKey = "user_id"
-		ctx := context.WithValue(r.Context(), UserIDKey, claims["user_id"])
-		next(w, r.WithContext(ctx))
-	}
+		ctx := context.WithValue(r.Context(), UserID, claims["user_id"])
+		req := r.WithContext(ctx)
+		next.ServeHTTP(w, req)
+	})
 }
