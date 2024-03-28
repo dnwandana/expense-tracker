@@ -18,9 +18,18 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	categoryRepo := repository.NewCategoryRepository(db)
 
 	// create category
-	mux.HandleFunc("POST /api/categories", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("POST /api/categories", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(int)
+		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
+		if !ok {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "invalid user id",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
+			return
+		}
+		userID := int(userIDFloat)
 
 		// parse the request
 		req := new(request.CategoryRequest)
@@ -42,9 +51,18 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	})))
 
 	// get category endpoint
-	mux.HandleFunc("GET /api/categories", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /api/categories", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(int)
+		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
+		if !ok {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "invalid user id",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
+			return
+		}
+		userID := int(userIDFloat)
 
 		// get categories
 		categories := categoryRepo.FindByUserID(userID)
@@ -58,7 +76,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	})))
 
 	// detail category endpoint
-	mux.HandleFunc("GET /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// request params
 		categoryIDStr := r.PathValue("category_id")
 		categoryID, err := strconv.Atoi(categoryIDStr)
@@ -76,9 +94,18 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	})))
 
 	// update category endpoint
-	mux.HandleFunc("PUT /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("PUT /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(int)
+		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
+		if !ok {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "invalid user id",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
+			return
+		}
+		userID := int(userIDFloat)
 
 		// request params
 		categoryIDStr := r.PathValue("category_id")
@@ -105,9 +132,18 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 	})))
 
 	// delete category endpoint
-	mux.HandleFunc("DELETE /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("DELETE /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
-		userID := r.Context().Value("user_id").(int)
+		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
+		if !ok {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "invalid user id",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
+			return
+		}
+		userID := int(userIDFloat)
 
 		// request params
 		categoryIDStr := r.PathValue("category_id")
