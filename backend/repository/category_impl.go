@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/dnwandana/expense-tracker/model/entity"
+	"github.com/dnwandana/expense-tracker/model/web/response"
 	"github.com/dnwandana/expense-tracker/utils"
 )
 
@@ -20,30 +21,30 @@ func (repo *CategoryRepositoryImpl) Create(category *entity.Category) {
 	utils.PanicIfError(err)
 }
 
-func (repo *CategoryRepositoryImpl) FindByID(categoryID int) *entity.Category {
-	query := "SELECT id, name FROM categories WHERE id = ? ORDER BY name ASC"
-	row, err := repo.DB.Query(query, categoryID)
+func (repo *CategoryRepositoryImpl) FindOne(userID, categoryID int) *response.Category {
+	query := "SELECT id, name, created_at, updated_at FROM categories WHERE user_id = ? AND id = ?"
+	row, err := repo.DB.Query(query, userID, categoryID)
 	utils.PanicIfError(err)
 	defer row.Close()
 
-	category := new(entity.Category)
+	category := new(response.Category)
 	if row.Next() {
-		err = row.Scan(&category.ID, &category.Name)
+		err = row.Scan(&category.ID, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 		utils.PanicIfError(err)
 	}
 
 	return category
 }
 
-func (repo *CategoryRepositoryImpl) FindByUserID(userID int) []*entity.Category {
+func (repo *CategoryRepositoryImpl) FindByUserID(userID int) []*response.Category {
 	query := "SELECT id, name, created_at, updated_at FROM categories WHERE user_id = ?"
 	rows, err := repo.DB.Query(query, userID)
 	utils.PanicIfError(err)
 	defer rows.Close()
 
-	categories := make([]*entity.Category, 0)
+	categories := make([]*response.Category, 0)
 	for rows.Next() {
-		category := new(entity.Category)
+		category := new(response.Category)
 		err = rows.Scan(&category.ID, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 		utils.PanicIfError(err)
 		categories = append(categories, category)
