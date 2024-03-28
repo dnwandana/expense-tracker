@@ -32,7 +32,7 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		userID := int(userIDFloat)
 
 		// parse the request
-		req := new(request.CategoryRequest)
+		req := new(request.Category)
 		utils.ReadJsonrequest(r, req)
 
 		// create category
@@ -77,13 +77,33 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 
 	// detail category endpoint
 	mux.Handle("GET /api/categories/{category_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// user id from jwt
+		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
+		if !ok {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "invalid user id",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusBadRequest)
+			return
+		}
+		userID := int(userIDFloat)
+
 		// request params
 		categoryIDStr := r.PathValue("category_id")
 		categoryID, err := strconv.Atoi(categoryIDStr)
 		utils.PanicIfError(err)
 
 		// get category
-		category := categoryRepo.FindByID(categoryID)
+		category := categoryRepo.FindOne(userID, categoryID)
+		if category.ID == 0 {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "no category found",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusNotFound)
+			return
+		}
 
 		// response
 		response := web.ResponseData{
@@ -112,16 +132,27 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		categoryID, err := strconv.Atoi(categoryIDStr)
 		utils.PanicIfError(err)
 
+		// get category
+		category := categoryRepo.FindOne(userID, categoryID)
+		if category.ID == 0 {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "no category found",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusNotFound)
+			return
+		}
+
 		// parse the request
-		req := new(request.CategoryRequest)
+		req := new(request.Category)
 		utils.ReadJsonrequest(r, req)
 
 		// update category
-		category := entity.Category{
+		newCategory := entity.Category{
 			ID:   categoryID,
 			Name: req.Name,
 		}
-		categoryRepo.Update(userID, &category)
+		categoryRepo.Update(userID, &newCategory)
 
 		// response
 		response := web.ResponseMessage{
@@ -149,6 +180,17 @@ func SetupCategoryRoutes(mux *http.ServeMux, db *sql.DB) {
 		categoryIDStr := r.PathValue("category_id")
 		categoryID, err := strconv.Atoi(categoryIDStr)
 		utils.PanicIfError(err)
+
+		// get category
+		category := categoryRepo.FindOne(userID, categoryID)
+		if category.ID == 0 {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "no category found",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusNotFound)
+			return
+		}
 
 		// delete category
 		categoryRepo.Delete(userID, categoryID)
