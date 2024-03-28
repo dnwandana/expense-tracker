@@ -18,7 +18,7 @@ func NewConnection() *sql.DB {
 	port := os.Getenv("DB_PORT")
 	dbname := os.Getenv("DB_NAME")
 
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, dbname)
+	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", username, password, host, port, dbname)
 
 	db, err := sql.Open("mysql", dataSource)
 	utils.PanicIfError(err)
