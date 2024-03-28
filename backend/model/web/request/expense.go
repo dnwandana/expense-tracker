@@ -1,7 +1,7 @@
 package request
 
 type ExpenseRequest struct {
-	CategoryID  string  `json:"category_id"`
-	Amount      float64 `json:"amount"`
-	Description string  `json:"description"`
+	CategoryID  int    `json:"category_id"`
+	Amount      int    `json:"amount"`
+	Description string `json:"description"`
 }

@@ -1,5 +1,5 @@
 CREATE TABLE users (
-  id VARCHAR(5) PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(20) NOT NULL UNIQUE,
   password VARCHAR(60) NOT NULL,
   created_at DATETIME DEFAULT NOW(),
@@ -7,10 +7,22 @@ CREATE TABLE users (
 );
 
 CREATE TABLE categories (
-  id VARCHAR(5) PRIMARY KEY,
-  user_id VARCHAR(5) NOT NULL,
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
   name VARCHAR(50) NOT NULL,
   created_at DATETIME DEFAULT NOW(),
   updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
   FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE expenses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  category_id INT NOT NULL,
+  amount INT NOT NULL,
+  description TEXT NULL,
+  created_at DATETIME DEFAULT NOW(),
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (category_id) REFERENCES categories(id)
 );

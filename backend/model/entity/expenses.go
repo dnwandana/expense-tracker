@@ -2,12 +2,13 @@ package entity
 
 import "time"
 
+// Expense entity is a struct to represent expense data in the database
 type Expense struct {
-	ID           string
-	UserID       string
-	CategoryID   string
+	ID           int
+	UserID       int
+	CategoryID   int
 	CategoryName string
-	Amount       float64
+	Amount       int
 	Description  string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time

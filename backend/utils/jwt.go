@@ -26,7 +26,7 @@ func SignAccessToken(user *entity.User) string {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["user_id"] = user.ID
 	claims["username"] = user.Username
-	claims["exp"] = time.Now().Add(time.Minute * time.Duration(accessLife)).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(accessLife)).Unix()
 
 	// sign the token
 	accessToken, err := token.SignedString([]byte(secret))
