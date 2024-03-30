@@ -19,6 +19,7 @@ CREATE TABLE expenses (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   category_id INT NOT NULL,
+  title VARCHAR(100) NOT NULL,
   amount INT NOT NULL,
   description TEXT NULL,
   created_at DATETIME DEFAULT NOW(),
