@@ -1,7 +1,8 @@
 package request
 
-type ExpenseRequest struct {
+type Expense struct {
 	CategoryID  int    `json:"category_id"`
+	Title       string `json:"title"`
 	Amount      int    `json:"amount"`
 	Description string `json:"description"`
 }

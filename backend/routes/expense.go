@@ -32,13 +32,14 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		userID := int(userIDFloat)
 
 		// parse the request
-		req := new(request.ExpenseRequest)
+		req := new(request.Expense)
 		utils.ReadJsonrequest(r, req)
 
 		// create expense
 		expense := entity.Expense{
 			UserID:      userID,
 			CategoryID:  req.CategoryID,
+			Title:       req.Title,
 			Amount:      req.Amount,
 			Description: req.Description,
 		}
@@ -78,26 +79,33 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 	})))
 
 	// detail expense endpoint
-	mux.Handle("GET /api/expenses/:expense_id", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /api/expenses/{expense_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// request params
-		expenseIDStr := r.PathValue("id")
+		expenseIDStr := r.PathValue("expense_id")
 		expenseID, err := strconv.Atoi(expenseIDStr)
 		utils.PanicIfError(err)
 
 		// get expense
 		expense := expenseRepo.FindByID(expenseID)
+		if expense.ID == 0 {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "expense not found",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusNotFound)
+			return
+		}
 
 		// response
 		response := web.ResponseData{
 			Status: true,
 			Data:   expense,
 		}
-
 		utils.WriteJsonResponse(w, response)
 	})))
 
 	// update expense endpoint
-	mux.Handle("PUT /api/expenses/:expense_id", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("PUT /api/expenses/{expense_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
 		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
 		if !ok {
@@ -111,23 +119,35 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		userID := int(userIDFloat)
 
 		// request params
-		expenseIDStr := r.PathValue("id")
+		expenseIDStr := r.PathValue("expense_id")
 		expenseID, err := strconv.Atoi(expenseIDStr)
 		utils.PanicIfError(err)
 
+		// get expense
+		expense := expenseRepo.FindByID(expenseID)
+		if expense.ID == 0 {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "expense not found",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusNotFound)
+			return
+		}
+
 		// parse the request
-		req := new(request.ExpenseRequest)
+		req := new(request.Expense)
 		utils.ReadJsonrequest(r, req)
 
 		// update expense
-		expense := entity.Expense{
+		newExpense := entity.Expense{
 			ID:          expenseID,
 			UserID:      userID,
 			CategoryID:  req.CategoryID,
+			Title:       req.Title,
 			Amount:      req.Amount,
 			Description: req.Description,
 		}
-		expenseRepo.Update(userID, &expense)
+		expenseRepo.Update(userID, &newExpense)
 
 		// response
 		response := web.ResponseMessage{
@@ -138,7 +158,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 	})))
 
 	// delete expense endpoint
-	mux.Handle("DELETE /api/expenses/:expense_id", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("DELETE /api/expenses/{expense_id}", middleware.RequireAccessToken(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// user id from jwt
 		userIDFloat, ok := r.Context().Value(middleware.UserID).(float64)
 		if !ok {
@@ -152,9 +172,20 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		userID := int(userIDFloat)
 
 		// request params
-		expenseIDStr := r.PathValue("id")
+		expenseIDStr := r.PathValue("expense_id")
 		expenseID, err := strconv.Atoi(expenseIDStr)
 		utils.PanicIfError(err)
+
+		// get expense
+		expense := expenseRepo.FindByID(expenseID)
+		if expense.ID == 0 {
+			response := web.ResponseMessage{
+				Status:  false,
+				Message: "expense not found",
+			}
+			utils.WriteJsonResponse(w, response, http.StatusNotFound)
+			return
+		}
 
 		// delete expense
 		expenseRepo.Delete(userID, expenseID)

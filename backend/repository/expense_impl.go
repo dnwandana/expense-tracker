@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/dnwandana/expense-tracker/model/entity"
+	"github.com/dnwandana/expense-tracker/model/web/response"
 	"github.com/dnwandana/expense-tracker/utils"
 )
 
@@ -16,35 +17,35 @@ func NewExpenseRepository(db *sql.DB) ExpenseRepository {
 }
 
 func (repo *ExpenseRepositoryImpl) Create(expense *entity.Expense) {
-	_, err := repo.DB.Exec("INSERT INTO expenses (id, user_id, category_id, amount, description) VALUES (?, ?, ?, ?, ?)", expense.ID, expense.UserID, expense.CategoryID, expense.Amount, expense.Description)
+	_, err := repo.DB.Exec("INSERT INTO expenses (user_id, category_id, title, amount, description) VALUES (?, ?, ?, ?, ?)", expense.UserID, expense.CategoryID, expense.Title, expense.Amount, expense.Description)
 	utils.PanicIfError(err)
 }
 
-func (repo *ExpenseRepositoryImpl) FindByID(expenseID int) *entity.Expense {
-	query := "SELECT id, category_id, amount, description, created_at, updated_at FROM expenses WHERE id = ?"
+func (repo *ExpenseRepositoryImpl) FindByID(expenseID int) *response.Expense {
+	query := "SELECT expenses.id, expenses.category_id, categories.name, expenses.title, expenses.amount, expenses.description, expenses.created_at, expenses.updated_at FROM expenses INNER JOIN categories ON expenses.category_id = categories.id WHERE expenses.id = ?"
 	row, err := repo.DB.Query(query, expenseID)
 	utils.PanicIfError(err)
 	defer row.Close()
 
-	expense := new(entity.Expense)
+	expense := new(response.Expense)
 	if row.Next() {
-		err = row.Scan(&expense.ID, &expense.CategoryID, &expense.Amount, &expense.Description, &expense.CreatedAt, &expense.UpdatedAt)
+		err = row.Scan(&expense.ID, &expense.CategoryID, &expense.Category, &expense.Title, &expense.Amount, &expense.Description, &expense.CreatedAt, &expense.UpdatedAt)
 		utils.PanicIfError(err)
 	}
 
 	return expense
 }
 
-func (repo *ExpenseRepositoryImpl) FindByUserID(userID int) []*entity.Expense {
-	query := "SELECT id, category_id, amount, description, created_at, updated_at FROM expenses WHERE user_id = ?"
+func (repo *ExpenseRepositoryImpl) FindByUserID(userID int) []*response.Expense {
+	query := "SELECT expenses.id, expenses.category_id, categories.name, expenses.title, expenses.amount, expenses.description, expenses.created_at, expenses.updated_at FROM expenses INNER JOIN categories ON expenses.category_id = categories.id WHERE expenses.user_id = ?"
 	rows, err := repo.DB.Query(query, userID)
 	utils.PanicIfError(err)
 	defer rows.Close()
 
-	expenses := make([]*entity.Expense, 0)
+	expenses := make([]*response.Expense, 0)
 	for rows.Next() {
-		expense := new(entity.Expense)
-		err = rows.Scan(&expense.ID, &expense.CategoryID, &expense.Amount, &expense.Description, &expense.CreatedAt, &expense.UpdatedAt)
+		expense := new(response.Expense)
+		err = rows.Scan(&expense.ID, &expense.CategoryID, &expense.Category, &expense.Title, &expense.Amount, &expense.Description, &expense.CreatedAt, &expense.UpdatedAt)
 		utils.PanicIfError(err)
 		expenses = append(expenses, expense)
 	}
@@ -53,7 +54,7 @@ func (repo *ExpenseRepositoryImpl) FindByUserID(userID int) []*entity.Expense {
 }
 
 func (repo *ExpenseRepositoryImpl) Update(userID int, expense *entity.Expense) {
-	_, err := repo.DB.Exec("UPDATE expenses SET category_id = ?, amount = ?, description = ? WHERE user_id = ? AND id = ?", expense.CategoryID, expense.Amount, expense.Description, userID, expense.ID)
+	_, err := repo.DB.Exec("UPDATE expenses SET category_id = ?, title = ?, amount = ?, description = ? WHERE user_id = ? AND id = ?", expense.CategoryID, expense.Title, expense.Amount, expense.Description, userID, expense.ID)
 	utils.PanicIfError(err)
 }
 
