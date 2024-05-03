@@ -29,7 +29,13 @@ func (repo *ExpenseRepositoryImpl) FindByID(expenseID int) *response.Expense {
 
 	expense := new(response.Expense)
 	if row.Next() {
-		err = row.Scan(&expense.ID, &expense.CategoryID, &expense.Category, &expense.Title, &expense.Amount, &expense.Description, &expense.CreatedAt, &expense.UpdatedAt)
+		var description sql.NullString
+		err = row.Scan(&expense.ID, &expense.CategoryID, &expense.Category, &expense.Title, &expense.Amount, &description, &expense.CreatedAt, &expense.UpdatedAt)
+
+		if description.Valid {
+			expense.Description = description.String
+		}
+
 		utils.PanicIfError(err)
 	}
 
@@ -45,7 +51,14 @@ func (repo *ExpenseRepositoryImpl) FindByUserID(userID int) []*response.Expense 
 	expenses := make([]*response.Expense, 0)
 	for rows.Next() {
 		expense := new(response.Expense)
-		err = rows.Scan(&expense.ID, &expense.CategoryID, &expense.Category, &expense.Title, &expense.Amount, &expense.Description, &expense.CreatedAt, &expense.UpdatedAt)
+		var description sql.NullString
+
+		err = rows.Scan(&expense.ID, &expense.CategoryID, &expense.Category, &expense.Title, &expense.Amount, &description, &expense.CreatedAt, &expense.UpdatedAt)
+
+		if description.Valid {
+			expense.Description = description.String
+		}
+
 		utils.PanicIfError(err)
 		expenses = append(expenses, expense)
 	}
