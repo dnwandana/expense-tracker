@@ -35,14 +35,23 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		req := new(request.Expense)
 		utils.ReadJsonrequest(r, req)
 
+		// assign description
+		description := sql.NullString{}
+		if req.Description != nil {
+			description.String = *req.Description
+		} else {
+			description.Valid = false
+		}
+
 		// create expense
 		expense := entity.Expense{
 			UserID:      userID,
 			CategoryID:  req.CategoryID,
 			Title:       req.Title,
 			Amount:      req.Amount,
-			Description: req.Description,
+			Description: description,
 		}
+
 		expenseRepo.Create(&expense)
 
 		// response
@@ -138,6 +147,14 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 		req := new(request.Expense)
 		utils.ReadJsonrequest(r, req)
 
+		// assign description
+		description := sql.NullString{}
+		if req.Description != nil {
+			description.String = *req.Description
+		} else {
+			description.Valid = false
+		}
+
 		// update expense
 		newExpense := entity.Expense{
 			ID:          expenseID,
@@ -145,7 +162,7 @@ func SetupExpenseRoutes(mux *http.ServeMux, db *sql.DB) {
 			CategoryID:  req.CategoryID,
 			Title:       req.Title,
 			Amount:      req.Amount,
-			Description: req.Description,
+			Description: description,
 		}
 		expenseRepo.Update(userID, &newExpense)
 

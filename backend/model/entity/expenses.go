@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // Expense entity is a struct to represent expense data in the database
 type Expense struct {
@@ -9,7 +12,7 @@ type Expense struct {
 	CategoryID  int
 	Title       string
 	Amount      int
-	Description string
+	Description sql.NullString
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
